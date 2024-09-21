@@ -1,4 +1,4 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 # Функция для создания клавиатуры
 def tasks_actions_kb() -> InlineKeyboardMarkup:
