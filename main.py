@@ -12,7 +12,8 @@ from routers import router as main_router
 
 #Получение логов от бота и делаем его непрерывным
 async def main():
-    dp = Dispatcher(storage=MemoryStorage())
+    storage = MemoryStorage()
+    dp = Dispatcher(storage=storage)
     dp.include_router(main_router)
 
     logging.basicConfig(level=logging.INFO)

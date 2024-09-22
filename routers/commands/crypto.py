@@ -19,11 +19,11 @@ class TaskStates(StatesGroup):
 async def handler_info_command(message: types.Message):
     await message.answer(
         text='Выберите интересующую вас криптовалюту',
-        reply_markup = get_crypto_kb(),
+        reply_markup=get_crypto_kb(),
     )
 
 @router.message(F.text == ButtonText.BTC)
-async def hande_btc(message: types.Message):
+async def handle_btc(message: types.Message):
     markup = tasks_actions_kb()
     await message.answer(
         text='Биткоин:',
@@ -31,26 +31,31 @@ async def hande_btc(message: types.Message):
     )
 
 @router.callback_query(F.data == 'add_quets')
-async def add_tasks(call: CallbackQuery):
+async def add_tasks(call: CallbackQuery, state: FSMContext):
+    await state.set_state(TaskStates.waiting_for_crypto_title)
     await call.message.answer("Введите название криптовалюты [BTC]|[ETH]|[LTC]:")
-    await TaskStates.waiting_for_crypto_title.set()
 
+@router.callback_query(F.state.state)
+async def process_crypto_title(call: CallbackQuery, state: FSMContext):
+    title = call.message.text  # Используется текст сообщения, обновите при необходимости
+    await state.update_data(title=title)  # Сохраняем заголовок
+    await state.set_state(TaskStates.waiting_for_price)
     await call.message.answer("Введите ожидаемую сумму в USD:")
-    await TaskStates.waiting_for_price.set()
+
+@router.message(F.state.state)  # Убедитесь, что state правильный
+async def process_price(message: types.Message, state: FSMContext):
+    user_data = await state.get_data()
+    title = user_data.get('title')
+    price = message.text  # Получаем сумму
+
+    task = {'title': title, 'price': price}
+    tasks.append(task)
+
+    await message.answer(f'Задача добавлена: {title} с ценой {price}.')
+    await state.clear()  # Очищаем состояние после завершения добавления задания
 
 @router.callback_query(F.data == 'del_quets')
 async def del_tasks(call: CallbackQuery):
     await call.message.answer(
         text='Удаляю задачу'
     )
-
-@router.message(state=TaskStates.waiting_for_description)
-async def process_description(message: types.Message, state: FSMContext):
-    user_data = await state.get_data()
-    title = user_data['title']
-    description = message.text
-
-    task = {'title': title, 'description': description}
-    tasks.append(task)
-
-    await message.answer(f'Задача добавлена: {title}.')
