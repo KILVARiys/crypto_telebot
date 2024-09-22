@@ -23,7 +23,7 @@ async def main():
         token=os.getenv('TOKEN'),
         #Установка парс мода по умолчанию
         #default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN_V2,
-        default=DefaultBotProperties(parse_mode=ParseMode.HTML
+        default=DefaultBotProperties(parse_mode=ParseMode.HTML,
     ))
     await dp.start_polling(bot)
 
