@@ -10,9 +10,14 @@ def tasks_actions_kb() -> InlineKeyboardMarkup:
         text='[-] Удалить задание [-]',
         callback_data='del_quets',
     )
+    check_quest = InlineKeyboardButton(
+        text='[=] Просмотреть задачи [=]',
+        callback_data='check_quets',
+    )
     rows = [
         [add_quest],
         [del_quest],
+        [check_quest],
     ]
     markup = InlineKeyboardMarkup(inline_keyboard=rows)
     return markup
