@@ -5,6 +5,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from keybords.crypto_keybords import ButtonText, get_crypto_kb
 from keybords.tasks_kb import tasks_actions_kb
+from sqlite import create_profile, edit_profile
 
 router = Router(name=__name__)
 
@@ -55,6 +56,7 @@ async def handle_btc(message: types.Message):
     await message.answer(
         text='Биткоин:',
     )
+    await edit_profile(user_id=message.from_user.id)
 
 @router.callback_query(F.data == 'del_quets')
 async def del_tasks(call: CallbackQuery):

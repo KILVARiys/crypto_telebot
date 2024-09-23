@@ -3,6 +3,8 @@ from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command
 from aiogram.utils import markdown
 
+from sqlite import create_profile
+
 router = Router(name=__name__)
 
 # Обработка команды старт
@@ -16,6 +18,7 @@ async def handle_start(message: types.Message):
              f"Если знаете то напишите /crypto ",
         parse_mode=ParseMode.HTML,
     )
+    await create_profile(user_id=message.from_user.id)
 
 #Информация о боте
 @router.message(Command('info', prefix='!/'))
