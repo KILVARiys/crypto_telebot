@@ -1,25 +1,24 @@
 import sqlite3 as sq
 
-from routers.commands.crypto import handle_price_input, handle_coin_callback
+db = sq.connect('tasks.db')
+cur = db.cursor()
 
 async def db_start():
     global cur, db
 
-    db = sq.connect('tasks.db')
-    cur = db.cursor()
-
-    cur.execute("CREATE TABLE IF NOT EXISTS profile(user_id TEXT PRIMARY KEY, crypto_name TEXT, crypto_price TEXT)")
+    # Создаем таблицу, если ее нет
+    cur.execute("CREATE TABLE IF NOT EXISTS profile (user_id TEXT PRIMARY KEY, crypto_name TEXT, crypto_price TEXT)")
     db.commit()
 
 async def create_profile(user_id):
-    user = cur.execute("SELECT 1 FROM profile WHERE user_id == '{key}'".format(key=user_id)).fetchone()
+    # Проверяем, есть ли уже профиль
+    user = cur.execute("SELECT 1 FROM profile WHERE user_id = ?", (user_id,)).fetchone()
     if not user:
-        cur.execute("INSERT INTO profile VALUES(user_id)")
+        # Вставляем новый профиль
+        cur.execute("INSERT INTO profile (user_id) VALUES (?)", (user_id,))
         db.commit()
 
-async def add_task(handle_coin_callback, handle_price_input):
-    cur.execute(
-        "INSERT INTO table_name (crypto_name TEXT, crypto_price TEXT) VALUES (?, ?)",
-        (handle_coin_callback, handle_price_input)
-    )
+async def add_task(crypto_name, crypto_price):
+    # Добавляем новую задачу в таблицу (предполагается, что таблица уже существует)
+    cur.execute("INSERT INTO tasks (crypto_name, crypto_price) VALUES (?, ?)", (crypto_name, crypto_price))
     db.commit()
