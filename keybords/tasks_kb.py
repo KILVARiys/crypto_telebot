@@ -21,3 +21,24 @@ def tasks_actions_kb() -> InlineKeyboardMarkup:
     ]
     markup = InlineKeyboardMarkup(inline_keyboard=rows)
     return markup
+
+def get_crypto_kb() -> InlineKeyboardMarkup:
+    coin_btc = InlineKeyboardButton(
+        text='Bitcoin|USD',
+        callback_data='coin_btc',
+    )
+    coin_eth = InlineKeyboardButton(
+        text='Ethereum|USD',
+        callback_data='coin_eth',
+    )
+    coin_ltc = InlineKeyboardButton(
+        text='Litecoin|USD',
+        callback_data='coin_ltc',
+    )
+    rows = [
+        [coin_btc],
+        [coin_eth],
+        [coin_ltc],
+    ]
+    markup = InlineKeyboardMarkup(inline_keyboard=rows)
+    return markup

@@ -3,9 +3,8 @@ from aiogram.filters import Command
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from keybords.crypto_keybords import ButtonText, get_crypto_kb
-from keybords.tasks_kb import tasks_actions_kb
-from sqlite import create_profile, edit_profile
+from keybords.tasks_kb import tasks_actions_kb, get_crypto_kb
+from sqlite import add_task
 
 router = Router(name=__name__)
 
@@ -32,31 +31,25 @@ async def add_tasks(call: CallbackQuery, state: FSMContext):
         reply_markup=get_crypto_kb(),
     )
 
-@router.callback_query(F.state.state)
-async def process_crypto_title(call: CallbackQuery, state: FSMContext):
-    title = call.message.text  # Используется текст сообщения, обновите при необходимости
-    await state.update_data(title=title)  # Сохраняем заголовок
-    await state.set_state(TaskStates.waiting_for_price)
-    await call.message.answer("Введите ожидаемую сумму в USD:")
-
-@router.message(F.state.state)  # Убедитесь, что state правильный
-async def process_price(message: types.Message, state: FSMContext):
-    user_data = await state.get_data()
-    title = user_data.get('title')
-    price = message.text  # Получаем сумму
-
-    task = {'title': title, 'price': price}
-    tasks.append(task)
-
-    await message.answer(f'Задача добавлена: {title} с ценой {price}.')
-    await state.clear()  # Очищаем состояние после завершения добавления задания
-
-@router.message(F.text == ButtonText.BTC)
-async def handle_btc(message: types.Message):
-    await message.answer(
-        text='Биткоин:',
+@router.callback_query(lambda call: call.data in {'coin_btc', 'coin_eth', 'coin_ltc'})
+async def handle_coin_callback(callback_query: types.CallbackQuery):
+    coin = callback_query.data
+    await callback_query.message.answer(
+        text='Нынешняя цена данной криптовалюты: \n'
+             'Если желаете установить цену введите /setprice'
     )
-    await edit_profile(user_id=message.from_user.id)
+    await add_task(coin=coin)
+
+@router.message(Command('setprice', prefix='!/'))
+async def handle_setprice(message: types.Message):
+    await message.answer('Введите желаемую цену в формате USD: ')
+
+@router.message()  # Обработчик для получения цены
+async def handle_price_input(message: types.Message):
+    price = message.text  # Получаем цену от пользователя
+    # Здесь вы можете добавить логику для обработки полученной цены
+    await message.answer(f'Вы успешно установили цену: {price} USD')
+    await add_task(price=price)
 
 @router.callback_query(F.data == 'del_quets')
 async def del_tasks(call: CallbackQuery):
