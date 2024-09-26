@@ -4,7 +4,6 @@ from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from keybords.tasks_kb import tasks_actions_kb, get_crypto_kb
-from sqlite import add_task
 
 router = Router(name=__name__)
 
@@ -38,7 +37,7 @@ async def handle_coin_callback(callback_query: types.CallbackQuery):
         text='Нынешняя цена данной криптовалюты: \n'
              'Если желаете установить цену введите /setprice'
     )
-    await add_task(coin=coin)
+    return coin
 
 @router.message(Command('setprice', prefix='!/'))
 async def handle_setprice(message: types.Message):
@@ -49,7 +48,7 @@ async def handle_price_input(message: types.Message):
     price = message.text  # Получаем цену от пользователя
     # Здесь вы можете добавить логику для обработки полученной цены
     await message.answer(f'Вы успешно установили цену: {price} USD')
-    await add_task(price=price)
+    return price
 
 @router.callback_query(F.data == 'del_quets')
 async def del_tasks(call: CallbackQuery):

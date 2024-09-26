@@ -1,5 +1,7 @@
 import sqlite3 as sq
 
+from routers.commands.crypto import handle_price_input, handle_coin_callback
+
 async def db_start():
     global cur, db
 
@@ -15,9 +17,9 @@ async def create_profile(user_id):
         cur.execute("INSERT INTO profile VALUES(user_id)")
         db.commit()
 
-async def add_task(coin, price):
+async def add_task(handle_coin_callback, handle_price_input):
     cur.execute(
         "INSERT INTO table_name (crypto_name TEXT, crypto_price TEXT) VALUES (?, ?)",
-        (coin, price)
+        (handle_coin_callback, handle_price_input)
     )
     db.commit()
