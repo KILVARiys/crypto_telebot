@@ -5,6 +5,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from keybords.tasks_kb import tasks_actions_kb, get_crypto_kb
 
+from sqlite import add_task
+
 router = Router(name=__name__)
 
 # Хранение задач
@@ -31,24 +33,34 @@ async def add_tasks(call: CallbackQuery, state: FSMContext):
     )
 
 @router.callback_query(lambda call: call.data in {'coin_btc', 'coin_eth', 'coin_ltc'})
-async def handle_coin_callback(callback_query: types.CallbackQuery):
+async def handle_coin_callback(callback_query: types.CallbackQuery, state: FSMContext):
     coin = callback_query.data
+    await state.update_data(crypto_name=coin)  # Сохраняем название криптовалюты в состоянии
     await callback_query.message.answer(
         text='Нынешняя цена данной криптовалюты: \n'
-             'Если желаете установить цену введите /setprice'
+             'Если желаете установить цену, введите /setprice'
     )
-    return coin
+    await state.set_state(TaskStates.waiting_for_price)  # Переход к ожиданию цены
 
 @router.message(Command('setprice', prefix='!/'))
 async def handle_setprice(message: types.Message):
     await message.answer('Введите желаемую цену в формате USD: ')
 
 @router.message()  # Обработчик для получения цены
-async def handle_price_input(message: types.Message):
+async def handle_price_input(message: types.Message, state: FSMContext):
     price = message.text  # Получаем цену от пользователя
-    # Здесь вы можете добавить логику для обработки полученной цены
-    await message.answer(f'Вы успешно установили цену: {price} USD')
-    return price
+    data = await state.get_data()  # Получаем сохраненные данные из состояния
+    crypto_name = data.get('crypto_name')  # Извлекаем название криптовалюты
+
+    # Проверка, является ли цена числом
+    if price.isdigit():
+        if crypto_name:
+            await add_task(crypto_name=crypto_name, crypto_price=price)  # Передаем оба параметра
+            await message.answer(f'Вы успешно установили цену: {price} USD для {crypto_name}')
+        else:
+            await message.answer('Ошибка: название криптовалюты не найдено.')
+    else:
+        await message.answer('Ошибка: пожалуйста, введите корректную цену в формате USD.')
 
 @router.callback_query(F.data == 'del_quets')
 async def del_tasks(call: CallbackQuery):

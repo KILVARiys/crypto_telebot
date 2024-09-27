@@ -20,5 +20,5 @@ async def create_profile(user_id):
 
 async def add_task(crypto_name, crypto_price):
     # Добавляем новую задачу в таблицу (предполагается, что таблица уже существует)
-    cur.execute("INSERT INTO tasks (crypto_name, crypto_price) VALUES (?, ?)", (crypto_name, crypto_price))
+    cur.execute("INSERT INTO profile (crypto_name, crypto_price) VALUES (?, ?)", (crypto_name, crypto_price))
     db.commit()
