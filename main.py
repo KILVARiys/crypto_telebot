@@ -12,8 +12,8 @@ from routers import router as main_router
 from sqlite import db_start
 
 
-async def on_startup(_):
-    await db_start()
+def on_startup():
+    db_start()
 
 #Получение логов от бота и делаем его непрерывным
 async def main():
@@ -30,7 +30,10 @@ async def main():
         #default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN_V2,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML,
     ))
-    await dp.start_polling(bot, on_startup=on_startup)
+
+    on_startup()
+
+    await dp.start_polling(bot)
 
 #Запуск бота
 if __name__ == "__main__":
