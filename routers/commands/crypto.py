@@ -3,9 +3,10 @@ from aiogram.filters import Command
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
+
 from keybords.tasks_kb import tasks_actions_kb, get_crypto_kb
 
-from sqlite_tasks import ent_info_db
+from sqlite_tasks import ent_info_db, give_tasks
 
 router = Router(name=__name__)
 
@@ -67,3 +68,12 @@ async def del_tasks(call: CallbackQuery):
     await call.message.answer(
         text='Удаляю задачу'
     )
+
+@router.callback_query(F.data == 'check_quets')
+async def check_tasks(call: CallbackQuery):
+    await call.message.answer(
+        text='Ваши задачи:',
+    )
+    user_tasks = give_tasks(user_id=call.from_user.id)
+    for task in user_tasks:
+        await call.message.answer(f"Номер задачи: {task[0]}, Монета: {task[2]}, Цена: {task[3]}")

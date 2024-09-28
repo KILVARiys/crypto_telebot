@@ -22,6 +22,7 @@ def ent_info_db(user_id, currency, price):
     # Сохраняем изменения
     conn.commit()
 
-# Выполняем запрос для получения задач пользователя с user_id = 1
 def give_tasks(user_id):
     cur.execute("SELECT * FROM tasks WHERE user_id = ?", (user_id,))
+    tasks = cur.fetchall()  # Получаем все результаты запроса
+    return tasks  # Возвращаем список задач
