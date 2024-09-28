@@ -22,6 +22,12 @@ def ent_info_db(user_id, currency, price):
     # Сохраняем изменения
     conn.commit()
 
+# Функция для удаления задачи по ID
+def del_info_db(user_id, task_id):
+    cur.execute('DELETE FROM tasks WHERE task_id = ? AND user_id = ?', (task_id, user_id))
+    # Сохраняем изменения
+    conn.commit()
+
 def give_tasks(user_id):
     cur.execute("SELECT * FROM tasks WHERE user_id = ?", (user_id,))
     tasks = cur.fetchall()  # Получаем все результаты запроса
