@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 
 from keybords.tasks_kb import tasks_actions_kb, get_crypto_kb
-
+from handlers.parser import check_price_coin
 from sqlite_tasks import ent_info_db, give_tasks, del_info_db
 
 router = Router(name=__name__)
@@ -39,8 +39,8 @@ async def add_tasks(call: CallbackQuery, state: FSMContext):
         coin = callback_query.data
         await state.update_data(crypto_name=coin)  # Сохраняем название криптовалюты в состоянии
         await callback_query.message.answer(
-            text='Нынешняя цена данной криптовалюты: \n'
-                 'Если желаете установить цену то введите число(Вводите в формате USD): '
+            text=f'Нынешняя цена данной криптовалюты: {check_price_coin(crypto_name=coin)}\n'
+                 f'Если желаете установить цену то введите число(Вводите в формате USD): '
         )
         await state.set_state(TaskStates.waiting_for_price)  # Переход к ожиданию цены
 
