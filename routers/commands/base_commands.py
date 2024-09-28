@@ -18,7 +18,7 @@ async def handle_start(message: types.Message):
              f"Если знаете то напишите /crypto ",
         parse_mode=ParseMode.HTML,
     )
-    await create_profile(user_id=message.from_user.id)
+    create_profile(user_id=message.from_user.id, username=message.from_user.full_name)
 
 #Информация о боте
 @router.message(Command('info', prefix='!/'))

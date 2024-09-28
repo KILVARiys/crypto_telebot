@@ -1,25 +1,18 @@
 import sqlite3 as sq
 
-db = sq.connect('tasks.db')
+# Создаем подключение к базе данных
+db = sq.connect('users.db')
 cur = db.cursor()
 
-async def db_start():
-    global cur, db
-
+def db_start():
     # Создаем таблицу, если ее нет
-    cur.execute("CREATE TABLE IF NOT EXISTS profile (user_id TEXT, crypto_name TEXT, crypto_price TEXT, PRIMARY KEY (user_id, crypto_name))")
+    cur.execute("CREATE TABLE IF NOT EXISTS profile (user_id TEXT PRIMARY KEY, username TEXT)")
     db.commit()
 
-async def create_profile(user_id):
+def create_profile(user_id, username):
     # Проверяем, есть ли уже профиль
     user = cur.execute("SELECT 1 FROM profile WHERE user_id = ?", (user_id,)).fetchone()
     if not user:
         # Вставляем новый профиль
-        cur.execute("INSERT INTO profile (user_id) VALUES (?)", (user_id,))
+        cur.execute("INSERT INTO profile (user_id, username) VALUES (?, ?)", (user_id, username))
         db.commit()
-
-async def add_task(user_id, crypto_name, crypto_price):
-    # Добавляем новую задачу в таблицу для конкретного пользователя
-    cur.execute("UPDATE profile SET crypto_name = ?, crypto_price = ? WHERE user_id = ?",
-                (crypto_name, crypto_price, user_id))
-    db.commit()
