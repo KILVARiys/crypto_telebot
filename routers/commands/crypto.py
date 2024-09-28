@@ -73,11 +73,11 @@ async def del_task(message: types.Message, state: FSMContext):
 
     # Проверка, является ли task_id числом
     if task_id.isdigit():
-        result = del_info_db(user_id=message.from_user.id, task_id=int(task_id))  # Убедитесь, что вы передаёте id как число
+        result = del_info_db(user_id=message.from_user.id, task_id=int(task_id))
         if result:  # Если удаление прошло успешно
-            await message.answer(f'Задача номер {task_id} успешно удалена.')
-        else:
             await message.answer(f'Задача номер {task_id} не найдена.')
+        else:
+            await message.answer(f'Задача номер {task_id} успешно удалена.')
     else:
         await message.answer('Ошибка: пожалуйста, введите корректный номер задачи.')
 
