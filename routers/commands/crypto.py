@@ -55,7 +55,7 @@ async def handle_price_input(message: types.Message, state: FSMContext):
     # Проверка, является ли цена числом
     if price.isdigit():
         if crypto_name:
-            ent_info_db(user_id=message.from_user.id, currency=crypto_name, price=price)  # Передаем оба параметра
+            ent_info_db(user_id=message.from_user.id, currency=crypto_name, price=price)
             await message.answer(f'Вы успешно установили цену: {price} USD для {crypto_name}')
         else:
             await message.answer('Ошибка: название криптовалюты не найдено.')
