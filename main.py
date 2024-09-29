@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import os
-import threading
 
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram import Bot, Dispatcher
@@ -36,8 +35,7 @@ async def main():
 
     await dp.start_polling(bot)
 
-    await check_coin_balance(bot=bot)
-    threading.Thread(target=check_coin_balance).start()
+    asyncio.run(check_coin_balance(bot))
 
 
 #Запуск бота
