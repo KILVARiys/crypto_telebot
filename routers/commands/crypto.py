@@ -37,9 +37,9 @@ async def add_tasks(call: CallbackQuery, state: FSMContext):
     @router.callback_query(lambda call: call.data in {'coin_btc', 'coin_eth', 'coin_ltc'})
     async def handle_coin_callback(callback_query: types.CallbackQuery, state: FSMContext):
         coin = callback_query.data
-        await state.update_data(crypto_name=coin)  # Сохраняем название криптовалюты в состоянии
+        await state.update_data(currency=coin)  # Сохраняем название криптовалюты в состоянии
         await callback_query.message.answer(
-            text=f'Нынешняя цена данной криптовалюты: {check_price_coin(crypto_name=coin)}\n'
+            text=f'Нынешняя цена данной криптовалюты: {check_price_coin(currency=coin)}\n'
                  f'Если желаете установить цену то введите число(Вводите в формате USD): '
         )
         await state.set_state(TaskStates.waiting_for_price)  # Переход к ожиданию цены
@@ -48,7 +48,7 @@ async def add_tasks(call: CallbackQuery, state: FSMContext):
     async def handle_price_input(message: types.Message, state: FSMContext):
         price = message.text  # Получаем цену от пользователя
         data = await state.get_data()  # Получаем сохраненные данные из состояния
-        crypto_name = data.get('crypto_name')  # Извлекаем название криптовалюты
+        crypto_name = data.get('currency')  # Извлекаем название криптовалюты
 
         # Проверка, является ли цена числом
         if price.isdigit():
