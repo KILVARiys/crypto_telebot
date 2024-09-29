@@ -39,13 +39,12 @@ async def check_coin_balance(bot):
     while True:
         coins = get_coins_from_db()  # Получаем данные о криптовалютах из БД
         coin_dict = {name: check_price_coin(name) for name in coins.keys()}  # Получаем текущие цены криптовалют
-
         # Если цена соответствует, отправляем уведомление
-        for name, target_price in coins.items():
-            if name in coin_dict and coin_dict[name] is not None:
-                current_price = float(coin_dict[name].replace('$', '').replace(',', ''))  # Преобразуем текущую цену в float
-                if current_price <= float(target_price):
-                    await send_notify(bot, f"[{name}] - buy\nprice: {coin_dict[name]}")
+        for currency, price in coins.items():
+            if currency in coin_dict and coin_dict[currency] is not None:
+                current_price = float(coin_dict[currency].replace('$', '').replace(',', ''))  # Преобразуем текущую цену в float
+                if current_price <= float(price):
+                    await send_notify(bot, f"[{currency}] - buy\nprice: {coin_dict[currency]}")
 
         await asyncio.sleep(20)  # Не блокируем поток
 
