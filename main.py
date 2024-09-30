@@ -30,13 +30,10 @@ async def main():
         #default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN_V2,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML,
     ))
-
+    await check_coin_balance(bot, user_id=5750727908)
     on_startup()
 
     await dp.start_polling(bot)
-
-    asyncio.run(check_coin_balance(bot))
-
 
 #Запуск бота
 if __name__ == "__main__":
