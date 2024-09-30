@@ -36,7 +36,7 @@ def get_coins_from_db():
     return cur.fetchall()  # Изменяем для возврата всех строк
 
 
-async def check_coin_balance(bot, user_id):
+async def check_coin_balance(bot):
     while True:
         coins = get_coins_from_db()  # Получаем список задач
         coin_dict = {currency: check_price_coin(currency) for currency, _ in coins}
@@ -46,15 +46,14 @@ async def check_coin_balance(bot, user_id):
             if currency in coin_dict and coin_dict[currency] is not None:
                 try:
                     current_price = float(coin_dict[currency].replace('$', '').replace(',', ''))
-                    print(
-                        f"Текущая цена {currency}: {current_price}, Условия: {current_price <= float(price)}")  # Отладка
-                    if current_price <= float(price):
+                    print(f"Текущая цена {currency}: {current_price}, Условия: {float(price) <= current_price}")  # Отладка
+                    if float(price) <= current_price:
                         result_message = (f"Условия для [{currency}] были соблюдены \n Нынешняя цена: {coin_dict[currency]}")
                         await send_notify(bot, result_message, currency)  # Передаем также валюту для удаления
                 except ValueError as ve:
                     print(f"Ошибка преобразования цены для {currency}: {ve}")
 
-            await asyncio.sleep(20)
+            await asyncio.sleep(10)
 
 
 async def send_notify(bot, message, currency):
