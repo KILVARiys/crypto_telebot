@@ -7,6 +7,7 @@ import asyncio
 connection = sqlite3.connect('tasks.db')
 cur = connection.cursor()
 
+
 # Функция для получения цены криптовалюты
 def check_price_coin(currency):
     price = None
@@ -28,33 +29,36 @@ def check_price_coin(currency):
 
     return price
 
+
 # Функция для извлечения данных из базы данных
 def get_coins_from_db():
     cur.execute("SELECT currency, price FROM tasks")
-    return {row[0]: row[1] for row in cur.fetchall()}
+    return cur.fetchall()  # Изменяем для возврата всех строк
+
 
 async def check_coin_balance(bot, user_id):
     while True:
-        coins = get_coins_from_db()
-        coin_dict = {currency: check_price_coin(currency) for currency in coins.keys()}
+        coins = get_coins_from_db()  # Получаем список задач
+        coin_dict = {currency: check_price_coin(currency) for currency, _ in coins}
 
         # Если цена соответствует, отправляем уведомление
-        for currency, price in coins.items():
+        for index, (currency, price) in enumerate(coins):  # Изменяем для получения индекса
             if currency in coin_dict and coin_dict[currency] is not None:
                 try:
                     current_price = float(coin_dict[currency].replace('$', '').replace(',', ''))
-                    print(f"Текущая цена {currency}: {current_price}, Условия: {current_price <= float(price)}")  # Отладка
+                    print(
+                        f"Текущая цена {currency}: {current_price}, Условия: {current_price <= float(price)}")  # Отладка
                     if current_price <= float(price):
-                        result_message = f"Условия для [{currency}] были соблюдены\n Нынешняя цена: {coin_dict[currency]}"
-                        await send_notify(bot, result_message)  # Здесь передаем объект бота
+                        result_message = (f"Условия для [{currency}] были соблюдены \n Нынешняя цена: {coin_dict[currency]}")
+                        await send_notify(bot, result_message, currency)  # Передаем также валюту для удаления
                 except ValueError as ve:
                     print(f"Ошибка преобразования цены для {currency}: {ve}")
 
-        await asyncio.sleep(20)
+            await asyncio.sleep(20)
 
 
-async def send_notify(bot, message):
-    cur.execute("SELECT user_id FROM tasks")
+async def send_notify(bot, message, currency):
+    cur.execute("SELECT user_id FROM tasks WHERE currency=?", (currency,))
     user_ids = cur.fetchall()
 
     for row in user_ids:
@@ -62,6 +66,14 @@ async def send_notify(bot, message):
         try:
             await bot.send_message(chat_id=user_id, text=message)  # Передаем user_id как chat_id
             print(f"Уведомление отправлено пользователю {user_id}: {message}")  # Отладка
+
+            # Удаляем задачу после отправки уведомления
+            cur.execute("DELETE FROM tasks WHERE currency=?", (currency,))
+            connection.commit()  # Сохраняем изменения в базе данных
+            print(f"Задача для {currency} удалена из базы данных.")
+
         except Exception as e:
             print(f"Ошибка отправки сообщения пользователю {user_id}: {e}")
 
+# Не забудьте закрыть соединение при завершении работы программы
+# connection.close() в соответствующем месте вашего кода
