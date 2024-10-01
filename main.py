@@ -31,7 +31,6 @@ async def main():
         default=DefaultBotProperties(parse_mode=ParseMode.HTML,
     ))
     on_startup()
-
     asyncio.create_task(check_coin_balance(bot))
     await dp.start_polling(bot)
 

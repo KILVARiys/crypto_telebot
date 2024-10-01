@@ -52,8 +52,7 @@ async def check_coin_balance(bot):
                         await send_notify(bot, result_message, currency)  # Передаем также валюту для удаления
                 except ValueError as ve:
                     print(f"Ошибка преобразования цены для {currency}: {ve}")
-
-            await asyncio.sleep(10)
+        await asyncio.sleep(10)
 
 
 async def send_notify(bot, message, currency):
